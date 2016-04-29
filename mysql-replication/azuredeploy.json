@@ -1,4 +1,5 @@
-﻿{
+﻿
+{
     "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
@@ -209,11 +210,11 @@
                 "description": "public IP name for MySQL loadbalancer"
             }
         },
-        "storageAccountNamePrefix": {
-          "type": "string",
-          "metadata": {
-              "description": "Storage account name prefix for the cluster"
-          }
+        "storageAccountName": {
+            "type": "string",
+            "metadata": {
+                "description": "Existing storage account name for the cluster"
+            }
         }
     },
     "variables": {
@@ -234,7 +235,7 @@
         "sshIPConfig": "[concat(variables('lbID'),'/frontendIPConfigurations/',variables('sshIPConfigName'))]",
         "nicName": "[concat(parameters('dnsName'), '-nic')]",
         "availabilitySetName": "[concat(parameters('dnsName'), '-set')]",
-        "storageAccountName": "[concat(parameters('storageAccountNamePrefix'), '0')]",
+        "storageAccountName": "[parameters('storageAccountName')]",
         "vhdContainer": "[concat('http://',variables('storageAccountName'),'.blob.core.windows.net/vhds/')]",
         "customScriptFilePath": "[concat(parameters('artifactsPath'), '/azuremysql.sh')]",
         "mysqlConfigFilePath": "[concat(parameters('artifactsPath'), '/my.cnf.template')]",
@@ -277,15 +278,6 @@
                         "value": "[parameters('virtualNetworkExistingRGName')]"
                     }
                 }
-            }
-        },
-        {
-            "type": "Microsoft.Storage/storageAccounts",
-            "name": "[variables('storageAccountName')]",
-            "apiVersion": "[variables('resourceAPIVersion')]",
-            "location": "[variables('region')]",
-            "properties": {
-                "accountType": "[parameters('storageAccountType')]"
             }
         },
         {
@@ -362,7 +354,6 @@
             },
             "dependsOn": [
                 "[concat('Microsoft.Compute/availabilitySets/', variables('availabilitySetName'))]",
-                "[concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]",
                 "[concat('Microsoft.Network/networkInterfaces/', variables('nicName'), copyIndex())]"
             ],
             "properties": {
